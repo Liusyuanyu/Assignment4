@@ -1,23 +1,39 @@
+/* eslint "react/react-in-jsx-scope": "off" */
+
+/* globals React ReactDOM */
+
+/* eslint "react/jsx-no-undef": "off" */
+
+/* eslint "react/no-multi-comp": "off" */
+
+/* eslint "no-alert": "off" */
+// eslint-disable-next-line react/prefer-stateless-function
 class InventorySubhead extends React.Component {
   render() {
-    const subhead = "Showing all available products";
+    const subhead = 'Showing all available products';
     return React.createElement("div", null, subhead);
   }
 
 }
 
-function ProductRow(props) {
-  const product = props.product;
+function ProductRow({
+  product
+}) {
+  // const { product } = props.product;
+  const price = `$${product.Price}`;
   return React.createElement("tr", null, React.createElement("td", {
     id: "body_pro_id"
-  }, product.id), React.createElement("td", null, product.Name), React.createElement("td", null, '$' + product.Price), React.createElement("td", null, product.Category), React.createElement("td", null, React.createElement("a", {
+  }, product.id), React.createElement("td", null, product.Name), React.createElement("td", null, price), React.createElement("td", null, product.Category), React.createElement("td", null, React.createElement("a", {
     href: product.Image,
-    target: "_blank"
+    target: "_blank",
+    rel: "noopener noreferrer"
   }, "View")));
 }
 
-function ProductTable(props) {
-  const productRows = props.products.map(product => React.createElement(ProductRow, {
+function ProductTable({
+  products
+}) {
+  const productRows = products.map(product => React.createElement(ProductRow, {
     key: product.id,
     product: product
   }));
@@ -37,15 +53,18 @@ class ProductAdd extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
     const form = document.forms.productAdd;
-    var pricedollar = form.priceper.value;
-    var price = pricedollar.replace('$', '');
+    const pricedollar = form.priceper.value;
+    const price = pricedollar.replace('$', '');
     const product = {
       Name: form.name.value,
       Category: form.category.value,
       Price: price,
       Image: form.image_url.value
     };
-    this.props.createProduct(product);
+    const {
+      createProduct
+    } = this.props;
+    createProduct(product);
     form.reset();
   }
 
@@ -54,8 +73,8 @@ class ProductAdd extends React.Component {
       name: "productAdd",
       onSubmit: this.handleSubmit
     }, React.createElement("div", {
-      class: "grid_container"
-    }, React.createElement("div", null, React.createElement("label", null, "Category"), React.createElement("br", null), React.createElement("select", {
+      className: "grid_container"
+    }, React.createElement("div", null, React.createElement("h2", null, "Category"), React.createElement("select", {
       type: "text",
       name: "category",
       selectedIndex: 1
@@ -69,17 +88,19 @@ class ProductAdd extends React.Component {
       value: "Sweaters"
     }, "Sweaters"), React.createElement("option", {
       value: "Accessories"
-    }, "Accessories"))), React.createElement("div", null, React.createElement("label", null, "Price Per Unit"), React.createElement("br", null), React.createElement("input", {
+    }, "Accessories"))), React.createElement("div", null, React.createElement("h3", null, "Price Per Unit"), React.createElement("input", {
       type: "text",
       name: "priceper",
-      defaultValue: '$'
-    })), React.createElement("div", null, React.createElement("label", null, "Product Name"), React.createElement("br", null), React.createElement("input", {
+      defaultValue: "$"
+    })), React.createElement("div", null, React.createElement("h3", null, "Product Name"), React.createElement("input", {
       type: "text",
       name: "name"
-    })), React.createElement("div", null, React.createElement("label", null, "Image URL"), React.createElement("br", null), React.createElement("input", {
+    })), React.createElement("div", null, React.createElement("h3", null, "Image URL"), React.createElement("input", {
       type: "text",
       name: "image_url"
-    }))), React.createElement("br", null), React.createElement("button", null, "Add Product"));
+    }))), React.createElement("br", null), React.createElement("button", {
+      type: "submit"
+    }, "Add Product"));
   }
 
 }
@@ -129,19 +150,23 @@ class MyProductList extends React.Component {
       productAdd(product: $product) {
         id
       }
-    }`;
-    const data = await graphQLFetch(query, {
+    }`; // const data = await graphQLFetch(query, { product });
+
+    await graphQLFetch(query, {
       product
     });
     this.retrieveData();
   }
 
   render() {
-    const head = "My Company Inventory";
-    const addhead = "Add a new product to inventory";
+    const head = 'My Company Inventory';
+    const addhead = 'Add a new product to inventory';
+    const {
+      products
+    } = this.state;
     return React.createElement(React.Fragment, null, React.createElement("h1", null, head), React.createElement(InventorySubhead, null), React.createElement("hr", null), React.createElement("br", null), React.createElement(ProductTable, {
-      products: this.state.products
-    }), React.createElement("br", null), React.createElement("label", null, addhead), React.createElement("hr", null), React.createElement(ProductAdd, {
+      products: products
+    }), React.createElement("br", null), React.createElement("h3", null, addhead), React.createElement("hr", null), React.createElement(ProductAdd, {
       createProduct: this.createProduct
     }));
   }

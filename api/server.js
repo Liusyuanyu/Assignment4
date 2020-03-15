@@ -1,18 +1,11 @@
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
-const { ApolloServer, UserInputError } = require('apollo-server-express');
+const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
-let db; 
+require('dotenv').config({ path: 'API.env' });
 
-require('dotenv').config({ path: 'API.env' })
+let db;
 const url = process.env.DB_URL;
-
-async function productAdd(_, { product }) {
-  var count = await getNextSequence('products');
-  product.id = count;
-  await db.collection('products').insertOne(product);
-  return product;
-}
 
 async function getNextSequence(name) {
   const result = await db.collection('counters').findOneAndUpdate(
@@ -21,6 +14,16 @@ async function getNextSequence(name) {
     { returnOriginal: false },
   );
   return result.value.current;
+}
+
+async function productAdd(_, { Inputproduct }) {
+  const count = await getNextSequence('products');
+  const product = Inputproduct;
+  product.id = count;
+  const result = await db.collection('products').insertOne(product);
+  const savedProduct = await db.collection('products')
+    .findOne({ _id: result.insertedId });
+  return savedProduct;
 }
 
 async function productList() {
@@ -38,10 +41,10 @@ const resolvers = {
   },
 };
 
-async function connectToDb() { 
+async function connectToDb() {
   console.log('URL: ', url);
   console.log('Port: ', process.env.API_SERVER_PORT);
-  const client = new MongoClient(url, { useNewUrlParser: true , useUnifiedTopology: true});
+  const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
   await client.connect();
   console.log('Connected to MongoDB at', url);
   db = client.db();
@@ -50,28 +53,25 @@ async function connectToDb() {
 const server = new ApolloServer({
   typeDefs: fs.readFileSync('schema.graphql', 'utf-8'),
   resolvers,
-  formatError: error => {
+  formatError: (error) => {
     console.log(error);
     return error;
   },
 });
 
 const app = express();
-
-const enableCors = (process.env.ENABLE_CORS || 'true') == 'true';
+const enableCors = (process.env.ENABLE_CORS || 'true') === 'true';
 console.log('CORS setting:', enableCors);
 server.applyMiddleware({ app, path: '/graphql', cors: enableCors });
 
 const port = process.env.API_SERVER_PORT;
-// const port = process.env.API_SERVER_PORT || 3000;
-
-(async function () {
+(async function start() {
   try {
     await connectToDb();
-    app.listen(port, function () {
+    app.listen(port, () => {
       console.log(`API server started on port ${port}`);
     });
   } catch (err) {
     console.log('ERROR:', err);
   }
-})();
+}());

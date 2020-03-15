@@ -1,45 +1,54 @@
+
+/* eslint "react/react-in-jsx-scope": "off" */
+/* globals React ReactDOM */
+/* eslint "react/jsx-no-undef": "off" */
+/* eslint "react/no-multi-comp": "off" */
+/* eslint "no-alert": "off" */
+
+// eslint-disable-next-line react/prefer-stateless-function
 class InventorySubhead extends React.Component {
-    render() {
-        const subhead = "Showing all available products";
-        return (
-            <div>{subhead}</div>
-        );
-    }
+  render() {
+    const subhead = 'Showing all available products';
+    return (
+      <div>{ subhead }</div>
+    );
+  }
 }
 
-function ProductRow(props) {
-    const product = props.product;
-    return (
-      <tr>
-        <td id='body_pro_id'>{product.id}</td>
-        <td>{product.Name}</td>
-        <td>{'$'+product.Price}</td>
-        <td>{product.Category}</td>
-        <td><a href={product.Image} target="_blank">View</a></td>
-      </tr>
-    );
+function ProductRow({ product }) {
+  // const { product } = props.product;
+  const price = `$${product.Price}`;
+  return (
+    <tr>
+      <td id="body_pro_id">{product.id}</td>
+      <td>{product.Name}</td>
+      <td>{price}</td>
+      <td>{product.Category}</td>
+      <td><a href={product.Image} target="_blank" rel="noopener noreferrer">View</a></td>
+    </tr>
+  );
 }
 
-function ProductTable(props) {
-    const productRows = props.products.map(product =>
-      <ProductRow key={product.id} product={product} />
-    );
-    return (
-      <table className="bordered-table">
-        <thead>
-          <tr>
-            <th id='head_pro_id'>id</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Category</th>
-            <th>Image</th>
-          </tr>
-        </thead>
-        <tbody>
-          {productRows}
-        </tbody>
-      </table>
-    );
+function ProductTable({ products }) {
+  const productRows = products.map(product => (
+    <ProductRow key={product.id} product={product} />
+  ));
+  return (
+    <table className="bordered-table">
+      <thead>
+        <tr>
+          <th id="head_pro_id">id</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Category</th>
+          <th>Image</th>
+        </tr>
+      </thead>
+      <tbody>
+        {productRows}
+      </tbody>
+    </table>
+  );
 }
 
 class ProductAdd extends React.Component {
@@ -47,51 +56,52 @@ class ProductAdd extends React.Component {
     super();
     this.handleSubmit = this.handleSubmit.bind(this);
   }
+
   handleSubmit(e) {
     e.preventDefault();
     const form = document.forms.productAdd;
-    var pricedollar = form.priceper.value;
-    var price =pricedollar.replace('$','');
+    const pricedollar = form.priceper.value;
+    const price = pricedollar.replace('$', '');
     const product = {
-      Name: form.name.value, Category: form.category.value,
-      Price: price, Image: form.image_url.value
+      Name: form.name.value,
+      Category: form.category.value,
+      Price: price,
+      Image: form.image_url.value,
     };
-    this.props.createProduct(product);
+    const { createProduct } = this.props;
+    createProduct(product);
     form.reset();
   }
+
   render() {
     return (
       <form name="productAdd" onSubmit={this.handleSubmit}>
-        <div class="grid_container">
+        <div className="grid_container">
           <div>
-            <label>Category</label>
-            <br/>
+            <h2>Category</h2>
             <select type="text" name="category" selectedIndex={1}>
-              <option value='Shirts'>Shirts</option>
-              <option value='Jeans'>Jeans</option>
-              <option value='Jackets'>Jackets</option>
-              <option value='Sweaters'>Sweaters</option>
-              <option value='Accessories'>Accessories</option>
+              <option value="Shirts">Shirts</option>
+              <option value="Jeans">Jeans</option>
+              <option value="Jackets">Jackets</option>
+              <option value="Sweaters">Sweaters</option>
+              <option value="Accessories">Accessories</option>
             </select>
           </div>
           <div>
-            <label>Price Per Unit</label>
-            <br/>
-            <input type="text" name="priceper" defaultValue={'$'}/>
+            <h3>Price Per Unit</h3>
+            <input type="text" name="priceper" defaultValue="$" />
           </div>
           <div>
-            <label>Product Name</label>
-            <br/>
-            <input type="text" name="name"/>
+            <h3>Product Name</h3>
+            <input type="text" name="name" />
           </div>
           <div>
-            <label>Image URL</label>
-            <br/>
-            <input type="text" name="image_url"/>
+            <h3>Image URL</h3>
+            <input type="text" name="image_url" />
           </div>
         </div>
-        <br/>
-        <button>Add Product</button>
+        <br />
+        <button type="submit">Add Product</button>
       </form>
     );
   }
@@ -100,14 +110,14 @@ class ProductAdd extends React.Component {
 async function graphQLFetch(query, variables = {}) {
   const response = await fetch(window.ENV.UI_API_ENDPOINT, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json'},
-    body: JSON.stringify({ query, variables })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables }),
   });
   const result = await response.json();
   return result.data;
 }
 
-class MyProductList extends  React.Component{
+class MyProductList extends React.Component {
   constructor() {
     super();
     this.state = { products: [] };
@@ -134,26 +144,30 @@ class MyProductList extends  React.Component{
         id
       }
     }`;
-    const data = await graphQLFetch(query, { product });
+    // const data = await graphQLFetch(query, { product });
+    await graphQLFetch(query, { product });
     this.retrieveData();
   }
-  
-  render(){
-    const head = "My Company Inventory";
-    const addhead = "Add a new product to inventory";
-    return(
-        <React.Fragment>
-            <h1>{head}</h1>
-            <InventorySubhead/>
-            <hr/><br/>
-            <ProductTable products={this.state.products}/><br/>
-            <label>{addhead}</label>
-            <hr/>
-            <ProductAdd createProduct = {this.createProduct}/>
-        </React.Fragment>
-    )
+
+  render() {
+    const head = 'My Company Inventory';
+    const addhead = 'Add a new product to inventory';
+    const { products } = this.state;
+    return (
+      <React.Fragment>
+        <h1>{ head }</h1>
+        <InventorySubhead />
+        <hr />
+        <br />
+        <ProductTable products={products} />
+        <br />
+        <h3>{ addhead }</h3>
+        <hr />
+        <ProductAdd createProduct={this.createProduct} />
+      </React.Fragment>
+    );
   }
 }
 
-const element =<MyProductList/>;
+const element = <MyProductList />;
 ReactDOM.render(element, document.getElementById('contents'));
