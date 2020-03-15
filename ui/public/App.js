@@ -85,7 +85,7 @@ class ProductAdd extends React.Component {
 }
 
 async function graphQLFetch(query, variables = {}) {
-  const response = await fetch('/graphql', {
+  const response = await fetch(window.ENV.UI_API_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

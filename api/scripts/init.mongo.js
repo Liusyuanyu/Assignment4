@@ -1,6 +1,6 @@
 db.products.remove({});
 
-// mongo mongodb+srv://AS-user:cs648@cs648cluster-9hwpd.mongodb.net/Assignment4 scripts/init.mongo.js
+// mongo mongodb+srv://AS-user:csSixFourEight@cs648cluster-9hwpd.mongodb.net/Assignment4 scripts/init.mongo.js
 
 const productDB = [
   {
