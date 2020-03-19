@@ -4,7 +4,8 @@
   "description": "as4_api",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "lint": "eslint . "
   },
   "author": "HsuanYu Liu",
   "license": "ISC",
